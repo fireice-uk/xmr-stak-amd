@@ -1,0 +1,5 @@
+bin/
+obj/
+xmr-stak-amd.layout
+xmr-stak-amd.depend
+config-debug.txt
