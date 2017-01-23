@@ -34,6 +34,11 @@ static inline void port_sleep(size_t sec)
 }
 #endif // _WIN32
 
+static inline long long unsigned int int_port(size_t i)
+{
+	return i;
+}
+
 #include "gpu.h"
 
 const char* err_to_str(cl_int ret)
@@ -201,7 +206,7 @@ size_t InitOpenCLGpu(cl_context opencl_ctx, GpuContext* ctx, char* source_code)
 	size_t MaximumWorkSize;
 	cl_int ret;
 
-	if((clGetDeviceInfo(ctx->DeviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &MaximumWorkSize, NULL)) != CL_SUCCESS)
+	if((ret = clGetDeviceInfo(ctx->DeviceID, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &MaximumWorkSize, NULL)) != CL_SUCCESS)
 	{
 		printer_print_msg("Error %s when querying a device's max worksize using clGetDeviceInfo.", err_to_str(ret));
 		return ERR_OCL_API;
@@ -292,7 +297,7 @@ size_t InitOpenCLGpu(cl_context opencl_ctx, GpuContext* ctx, char* source_code)
 	}
 
 	char options[32];
-	snprintf(options, sizeof(options), "-I. -DWORKSIZE=%lu", ctx->workSize);
+	snprintf(options, sizeof(options), "-I. -DWORKSIZE=%llu", int_port(ctx->workSize));
 	ret = clBuildProgram(ctx->Program, 1, &ctx->DeviceID, options, NULL, NULL);
 	if(ret != CL_SUCCESS)
 	{
@@ -367,7 +372,12 @@ size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx)
 		return ERR_STUPID_PARAMS;
 	}
 
+	/*MSVC skimping on devel costs by shoehorning C99 to be a subset of C++? Noooo... can't be.*/
+#ifdef __GNUC__
 	cl_platform_id PlatformIDList[entries];
+#else
+	cl_platform_id* PlatformIDList = _alloca(entries * sizeof(cl_platform_id));
+#endif
 	if((ret = clGetPlatformIDs(entries, PlatformIDList, NULL)) != CL_SUCCESS)
 	{
 		printer_print_msg("Error %s when calling clGetPlatformIDs for platform ID information.", err_to_str(ret));
@@ -390,7 +400,11 @@ size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx)
 		}
 	}
 
+#ifdef __GNUC__
 	cl_device_id DeviceIDList[entries];
+#else
+	cl_device_id* DeviceIDList = _alloca(entries * sizeof(cl_device_id));
+#endif
 	if((ret = clGetDeviceIDs(PlatformIDList[platform_idx], CL_DEVICE_TYPE_GPU, entries, DeviceIDList, NULL)) != CL_SUCCESS)
 	{
 		printer_print_msg("Error %s when calling clGetDeviceIDs for device ID information.", err_to_str(ret));
@@ -398,7 +412,11 @@ size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx)
 	}
 
 	// Indexes sanity checked above
+#ifdef __GNUC__
 	cl_device_id TempDeviceList[num_gpus];
+#else
+	cl_device_id* TempDeviceList = _alloca(entries * sizeof(cl_device_id));
+#endif
 	for(int i = 0; i < num_gpus; ++i)
 	{
 		ctx[i].DeviceID = DeviceIDList[ctx[i].deviceIdx];

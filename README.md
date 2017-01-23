@@ -13,24 +13,43 @@ Hash: SHA256
 
 Windows binary release checksums
 
-sha1sum xmr-stak-cpu.exe
-32f551c891040eda2c25e18e6287665471a5a653  xmr-stak-cpu.exe
+sha1sum xmr-stak-amd.exe opencl/*
+1fa7364af3b21dcc5f5bd54f6e862613422085d3  xmr-stak-amd.exe
+5acb656005a86cad90c6327985c3795d96a96c91  opencl/blake256.cl
+9e4e276afd9000945c25f6e5a5259977a29239f4  opencl/cryptonight.cl
+c9fb5e4bfb137ff60063978eecd10bffb7c4deb6  opencl/groestl256.cl
+361dfce776ee4a89b100d139a879af5d0f0d65e4  opencl/jh.cl
+429f559190d1163335847cc08df955234051504b  opencl/wolf-aes.cl
+e2862a6d7094aeab21844d3155803e5da99b4a46  opencl/wolf-skein.cl
 
-sha3sum xmr-stak-cpu.exe
-ed12841738c899a3eb61f51787aa670c25b64ce3c5a626717e6a8f6b  xmr-stak-cpu.exe
+sha1sum xmr-stak-amd.exe opencl/* | sha1sum
+ac5eadbcc557d7192ea4ba887a50ba25b040b5fa  -
+
+sha3sum xmr-stak-amd.exe opencl/*
+a269811145448fbec2f763762da0c545ded76eccc88e2a55e415ab0b  xmr-stak-amd.exe
+a52b05548fd094e7bbb2367d7922bf19af3ed23ad5df53004fae0825  opencl/blake256.cl
+a49c9da554d7b01d091eea56e8b97b943ca33cd2a64a1f3f3169e202  opencl/cryptonight.cl
+13315b0a475212c92e10b7627b03a0813132437d4496b6596821b909  opencl/groestl256.cl
+89548b917dbe216f5809624ebe350859c1d800048909322049f93d23  opencl/jh.cl
+806eb1d4e3d7b6630a422bb42ee00faa76d31143b7c1cbde65e46938  opencl/wolf-aes.cl
+052176a740a5a0bc088feea0aa7a72f0e9d96d6b6ffd00844676dd17  opencl/wolf-skein.cl
+
+sha3sum xmr-stak-amd.exe opencl/* | sha3sum
+50ff39acfdc5973014a26a2027a9fd20a9211cfee44bb61c16c235c6  -
 
 date
-Mon 16 Jan 15:13:25 GMT 2017
+Mon 23 Jan 19:32:15 GMT 2017
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJYfONvAAoJEPsk95p+1Bw02coH/0by+VMK76gnmpNjIxDcphkV
-S1GG+f0sIAYUrGpoMCJTXbr7hU3Na+grTbt6xLM2Tb0xJjX4Mc47Cixajzy7+TTx
-R2+CvBRl8LG9zob6JNiohvxD1+SK7RWDKWenFyDlr9BewgE/ArqZM+16BQBrLP9H
-XIWy1wh/lcSYuS548tnUYdNOmEnR9TqA454M4r8PED85HSpNmvI+eG8fZ8OK471C
-3yMupjYlAbiEBT+gE6bZwLeeCH9NO2gGeBAb31w8RBsMRjy+VvhFhTOoJwZbXj9e
-sMUwNBu+fLVoilMVvp8SDpQ7Uw/WFT085N2eJiCCuEbHgFAwM3uwD6VHz3eXd0s=
-=QJQj
+iQEcBAEBCAAGBQJYhlpbAAoJEPsk95p+1Bw0QyUH/2tIagIw60i9Gy7mICfiTy6u
+AuWz+D5Zg/DEUOj6ZDBoZt+DpDvTPuwjbrCyn3Uf7jrEF+ZNI5K132Dt6Rh10v9K
+JSCxUB0q2mqUYkBY1MrIW0LM7ACg6RYQBuAq/2EVNt3FSKEFC1EbWa605IiXWXMu
+WraTY0lxefq+gJJGIlworKooSGuQFEK1d7huYOQvjjmsvZLLyr7ElVirxAmoob8g
+z5EFHwC1rUm12ajJbLfGfRV7vAUBct5iiVDMQMHx2QGq889BdZd0gcmzv6E0wB5L
+cFUnVBC1l8+bnfyzHyk1QXEogKAYK8t0bHBUaYcRV3q1KKI+X41HokX8KTQLVp8=
+=Rayc
 -----END PGP SIGNATURE-----
 ```
 
@@ -51,14 +70,9 @@ To do a static build for a system without gcc 5.1+
 ```
 Note - cmake caches variables, so if you want to do a dynamic build later you need to specify '-DCMAKE_BUILD_TYPE=RELEASE'
 
-#### CPU mining performance 
+#### Mining performance 
 
-Performance is nearly identical to the closed source paid miners. Here are some numbers:
-
-* **I7-2600K** - 266 H/s
-* **I7-6700** - 276 H/s (with a separate GPU miner)
-* **Dual X5650** - 466 H/s (depends on NUMA)
-* **Dual E5640** - 365 H/s (same as above)
+Mining core is a direct port (except for sercurity fixes) of wolf9466's AMD mining code. Performance is likely to be identical.
 
 #### Example reports
 ```
@@ -109,9 +123,9 @@ Network error log:
 By default the miner will donate 1% of the hashpower (1 minute in 100 minutes) to my pool. If you want to change that, edit **donate-level.h** before you build the binaries.
 
 If you want to donate directly to support further development, here is my wallet
-* 4581HhZkQHgZrZjKeCfCJxZff9E3xCgHGF25zABZz7oR71TnbbgiS7sK9jveE6Dx6uMs2LwszDuvQJgRZQotdpHt1fTdDhk
-
-
+```
+4581HhZkQHgZrZjKeCfCJxZff9E3xCgHGF25zABZz7oR71TnbbgiS7sK9jveE6Dx6uMs2LwszDuvQJgRZQotdpHt1fTdDhk
+```
 
 #### PGP Key
 ```
@@ -152,7 +166,4 @@ c4hC0Yg9Dha1OoE5CJCqVL+ic4vAyB1urAwBlsd/wH8=
 **msvcp140.dll and vcruntime140.dll not available errors**
 
 Download and install this [runtime package](https://www.microsoft.com/en-us/download/details.aspx?id=48145) from Microsoft.  *Warning: Do NOT use "missing dll" sites - dll's are exe files with another name, and it is a fairly safe bet that any dll on a shady site like that will be trojaned.  Please download offical runtimes from Microsoft above.*
-
-
-
 
