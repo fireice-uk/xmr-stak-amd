@@ -386,7 +386,7 @@ size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx)
 
 	if((ret = clGetDeviceIDs(PlatformIDList[platform_idx], CL_DEVICE_TYPE_GPU, 0, NULL, &entries)) != CL_SUCCESS)
 	{
-		printer_print_msg("Error %s when calling clGetDeviceIDs for number of devices.", ret);
+		printer_print_msg("Error %s when calling clGetDeviceIDs for number of devices.", err_to_str(ret));
 		return ERR_OCL_API;
 	}
 
@@ -431,6 +431,12 @@ size_t InitOpenCL(GpuContext* ctx, size_t num_gpus, size_t platform_idx)
 	}
 
 	char* source_code = LoadTextFile(sSourcePath);
+	if(source_code == NULL)
+	{
+		printer_print_msg("Couldn't locate GPU source code file at %s.", sSourcePath);
+		return ERR_STUPID_PARAMS;
+	}
+
 	for(int i = 0; i < num_gpus; ++i)
 	{
 		if((ret = InitOpenCLGpu(opencl_ctx, &ctx[i], source_code)) != ERR_SUCCESS)
