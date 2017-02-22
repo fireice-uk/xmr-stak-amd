@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include "jconf.h"
@@ -37,8 +45,10 @@ using namespace rapidjson;
 /*
  * This enum needs to match index in oConfigValues, otherwise we will get a runtime error
  */
-enum configEnum { iGpuThreadNum, aGpuThreadsConf, iPlatformIdx, sPoolAddr, sWalletAddr,
-	sPoolPwd, iCallTimeout, iNetRetry, iVerboseLevel, iAutohashTime, iHttpdPort, bPreferIpv4 };
+enum configEnum { iGpuThreadNum, aGpuThreadsConf, iPlatformIdx,
+	bTlsMode, bTlsSecureAlgo, sTlsFingerprint, sPoolAddr, sWalletAddr, sPoolPwd,
+	iCallTimeout, iNetRetry, iGiveUpLimit, iVerboseLevel, iAutohashTime,
+	sOutputFile, iHttpdPort, bPreferIpv4 };
 
 struct configVal {
 	configEnum iName;
@@ -51,13 +61,18 @@ configVal oConfigValues[] = {
 	{ iGpuThreadNum, "gpu_thread_num", kNumberType },
 	{ aGpuThreadsConf, "gpu_threads_conf", kArrayType },
 	{ iPlatformIdx, "platform_index", kNumberType },
+	{ bTlsMode, "use_tls", kTrueType },
+	{ bTlsSecureAlgo, "tls_secure_algo", kTrueType },
+	{ sTlsFingerprint, "tls_fingerprint", kStringType },
 	{ sPoolAddr, "pool_address", kStringType },
 	{ sWalletAddr, "wallet_address", kStringType },
 	{ sPoolPwd, "pool_password", kStringType },
 	{ iCallTimeout, "call_timeout", kNumberType },
 	{ iNetRetry, "retry_time", kNumberType },
+	{ iGiveUpLimit, "giveup_limit", kNumberType },
 	{ iVerboseLevel, "verbose_level", kNumberType },
 	{ iAutohashTime, "h_print_time", kNumberType },
+	{ sOutputFile, "output_file", kStringType },
 	{ iHttpdPort, "httpd_port", kNumberType },
 	{ bPreferIpv4, "prefer_ipv4", kTrueType }
 };
@@ -135,6 +150,21 @@ size_t jconf::GetPlatformIdx()
 	return prv->configValues[iPlatformIdx]->GetUint64();
 }
 
+bool jconf::GetTlsSetting()
+{
+	return prv->configValues[bTlsMode]->GetBool();
+}
+
+bool jconf::TlsSecureAlgos()
+{
+	return prv->configValues[bTlsSecureAlgo]->GetBool();
+}
+
+const char* jconf::GetTlsFingerprint()
+{
+	return prv->configValues[sTlsFingerprint]->GetString();
+}
+
 const char* jconf::GetPoolAddress()
 {
 	return prv->configValues[sPoolAddr]->GetString();
@@ -170,6 +200,11 @@ uint64_t jconf::GetNetRetry()
 	return prv->configValues[iNetRetry]->GetUint64();
 }
 
+uint64_t jconf::GetGiveUpLimit()
+{
+	return prv->configValues[iGiveUpLimit]->GetUint64();
+}
+
 uint64_t jconf::GetVerboseLevel()
 {
 	return prv->configValues[iVerboseLevel]->GetUint64();
@@ -183,6 +218,11 @@ uint64_t jconf::GetAutohashTime()
 uint16_t jconf::GetHttpdPort()
 {
 	return prv->configValues[iHttpdPort]->GetUint();
+}
+
+const char* jconf::GetOutputFile()
+{
+	return prv->configValues[sOutputFile]->GetString();
 }
 
 bool jconf::check_cpu_features()
@@ -319,10 +359,12 @@ bool jconf::parse_config(const char* sFilename)
 		}
 	}
 
-	if(!prv->configValues[iCallTimeout]->IsUint64() || !prv->configValues[iNetRetry]->IsUint64())
+	if(!prv->configValues[iCallTimeout]->IsUint64() ||
+		!prv->configValues[iNetRetry]->IsUint64() ||
+		!prv->configValues[iGiveUpLimit]->IsUint64())
 	{
 		printer::inst()->print_msg(L0,
-			"Invalid config file. call_timeout and retry_time need to be positive integers.");
+			"Invalid config file. call_timeout, retry_time and giveup_limit need to be positive integers.");
 		return false;
 	}
 

@@ -13,6 +13,8 @@ if("${MHTD}" STREQUAL "MHTD-NOTFOUND")
     message(FATAL_ERROR "libmicrohttpd is required")
 endif()
 
+find_package(OpenSSL REQUIRED)
+
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CONFIGURATION_TYPES "RELEASE;STATIC")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "") 
@@ -30,6 +32,6 @@ set(EXECUTABLE_OUTPUT_PATH "bin")
 file(GLOB SOURCES "crypto/*.c" "crypto/*.cpp" "amd_gpu/*.c" "*.cpp")
 
 add_executable(xmr-stak-amd ${SOURCES})
-target_link_libraries(xmr-stak-amd pthread microhttpd OpenCL)
+target_link_libraries(xmr-stak-amd pthread microhttpd OpenCL crypto ssl)
  
 

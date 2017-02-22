@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include "executor.h"
@@ -23,6 +31,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <openssl/ssl.h>
 
 //Do a press any key for the windows folk. *insert any key joke here*
 #ifdef _WIN32
@@ -39,9 +49,17 @@ void win_exit()
 void win_exit() { return; }
 #endif // _WIN32
 
+void do_benchmark();
+
 int main(int argc, char *argv[])
 {
+	SSL_library_init();
+	SSL_load_error_strings();
+	ERR_load_BIO_strings();
+	OpenSSL_add_all_digests();
+
 	const char* sFilename = "config.txt";
+	bool benchmark_mode = false;
 
 	if(argc >= 2)
 	{
@@ -53,7 +71,14 @@ int main(int argc, char *argv[])
 		}
 
 		if(argc >= 3 && strcasecmp(argv[1], "-c") == 0)
+		{
 			sFilename = argv[2];
+		}
+		else if(argc >= 3 && strcasecmp(argv[1], "benchmark_mode") == 0)
+		{
+			sFilename = argv[2];
+			benchmark_mode = true;
+		}
 		else
 			sFilename = argv[1];
 	}
@@ -66,6 +91,13 @@ int main(int argc, char *argv[])
 
 	if(!minethd::init_gpus())
 	{
+		win_exit();
+		return 0;
+	}
+
+	if(benchmark_mode)
+	{
+		do_benchmark();
 		win_exit();
 		return 0;
 	}
@@ -92,6 +124,9 @@ int main(int argc, char *argv[])
 	printer::inst()->print_str("'c' - connection\n");
 	printer::inst()->print_str("-------------------------------------------------------------------\n");
 
+	if(strlen(jconf::inst()->GetOutputFile()) != 0)
+		printer::inst()->open_logfile(jconf::inst()->GetOutputFile());
+
 	executor::inst()->ex_start();
 
 	int key;
@@ -116,4 +151,35 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
+}
+
+void do_benchmark()
+{
+	using namespace std::chrono;
+	std::vector<minethd*>* pvThreads;
+
+	printer::inst()->print_msg(L0, "Running a 60 second benchmark...");
+
+	uint8_t work[76] = {0};
+	minethd::miner_work oWork = minethd::miner_work("", work, sizeof(work), 0, 0, 0);
+	pvThreads = minethd::thread_starter(oWork);
+
+	uint64_t iStartStamp = time_point_cast<milliseconds>(high_resolution_clock::now()).time_since_epoch().count();
+
+	std::this_thread::sleep_for(std::chrono::seconds(60));
+
+	oWork = minethd::miner_work();
+	minethd::switch_work(oWork);
+
+	double fTotalHps = 0.0;
+	for (uint32_t i = 0; i < pvThreads->size(); i++)
+	{
+		double fHps = pvThreads->at(i)->iHashCount;
+		fHps /= (pvThreads->at(i)->iTimestamp - iStartStamp) / 1000.0;
+
+		printer::inst()->print_msg(L0, "Thread %u: %.1f H/S", i, fHps);
+		fTotalHps += fHps;
+	}
+
+	printer::inst()->print_msg(L0, "Total: %.1f H/S", fTotalHps);
 }

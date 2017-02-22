@@ -25,6 +25,19 @@
 "platform_index" : 0,
 
 /*
+ * TLS Settings
+ * If you need real security, make sure tls_secure_algo is enabled (otherwise MITM attack can downgrade encryption
+ * to trivially breakable stuff like DES and MD5), and verify the server's fingerprint through a trusted channel. 
+ *
+ * use_tls         - This option will make us connect using Transport Layer Security.
+ * tls_secure_algo - Use only secure algorithms. This will make us quit with an error if we can't negotiate a secure algo.
+ * tls_fingerprint - Server's SHA256 fingerprint. If this string is non-empty then we will check the server's cert against it.
+ */
+"use_tls" : false,
+"tls_secure_algo" : true,
+"tls_fingerprint" : "",
+
+/*
  * pool_address	  - Pool address should be in the form "pool.supportxmr.com:3333". Only stratum pools are supported.
  * wallet_address - Your wallet, or pool login.
  * pool_password  - Can be empty in most cases or "x".
@@ -44,9 +57,12 @@
  * call_timeout - How long should we wait for a response from the server before we assume it is dead and drop the connection.
  * retry_time	- How long should we wait before another connection attempt.
  *                Both values are in seconds.
+ * giveup_limit - Limit how many times we try to reconnect to the pool. Zero means no limit. Note that stak miners
+ *                don't mine while the connection is lost, so your computer's power usage goes down to idle.
  */
 "call_timeout" : 10,
 "retry_time" : 10,
+"giveup_limit" : 0,
 
 /*
  * Output control.
@@ -70,6 +86,14 @@
  *                This option has no effect if verbose_level is not 4.
  */
 "h_print_time" : 60,
+
+/*
+ * Output file
+ *
+ * output_file  - This option will log all output to a file.
+ *
+ */
+"output_file" : "",
 
 /*
  * Built-in web server

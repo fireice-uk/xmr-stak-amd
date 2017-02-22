@@ -19,11 +19,12 @@
 	We parse it in-situ in the network buffer, after that we copy it to a
 	std::string. Executor will move the buffer via an r-value ref.
 */
+class base_socket;
 
 class jpsock
 {
 public:
-	jpsock(size_t id);
+	jpsock(size_t id, bool tls);
 	~jpsock();
 
 	bool connect(const char* sAddr, std::string& sConnectError);
@@ -51,6 +52,13 @@ public:
 	bool get_current_job(pool_job& job);
 
 	size_t pool_id;
+
+	bool set_socket_error(const char* a);
+	bool set_socket_error(const char* a, const char* b);
+	bool set_socket_error(const char* a, size_t len);
+	bool set_socket_error_strerr(const char* a);
+	bool set_socket_error_strerr(const char* a, int res);
+
 private:
 	std::atomic<bool> bRunning;
 	std::atomic<bool> bLoggedIn;
@@ -78,13 +86,6 @@ private:
 	std::string sSocketError;
 	std::atomic<bool> bHaveSocketError;
 
-	bool set_socket_error(const char* a);
-	bool set_socket_error(const char* a, const char* b);
-	bool set_socket_error_strerr(const char* a);
-	bool set_socket_error_strerr(const char* a, int res);
-
-	bool prv_connect(const char* sAddr);
-
 	std::mutex call_mutex;
 	std::condition_variable call_cond;
 	std::thread* oRecvThd;
@@ -93,5 +94,6 @@ private:
 	pool_job oCurrentJob;
 
 	opaque_private* prv;
+	base_socket* sck;
 };
 

@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include "console.h"
@@ -147,6 +155,13 @@ printer* printer::oInst = nullptr;
 printer::printer()
 {
 	verbose_level = LINF;
+	logfile = nullptr;
+}
+
+bool printer::open_logfile(const char* file)
+{
+	logfile = fopen(file, "ab+");
+	return logfile != nullptr;
 }
 
 void printer::print_msg(verbosity verbose, const char* fmt, ...)
@@ -177,12 +192,24 @@ void printer::print_msg(verbosity verbose, const char* fmt, ...)
 
 	std::unique_lock<std::mutex> lck(print_mutex);
 	fputs(buf, stdout);
+
+	if(logfile != nullptr)
+	{
+		fputs(buf, logfile);
+		fflush(logfile);
+	}
 }
 
 void printer::print_str(const char* str)
 {
 	std::unique_lock<std::mutex> lck(print_mutex);
 	fputs(str, stdout);
+
+	if(logfile != nullptr)
+	{
+		fputs(str, logfile);
+		fflush(logfile);
+	}
 }
 
 extern "C" void printer_print_msg(const char* fmt, ...)

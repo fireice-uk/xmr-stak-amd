@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include <stdarg.h>
@@ -23,6 +31,7 @@
 #include "rapidjson/document.h"
 #include "jext.h"
 #include "socks.h"
+#include "socket.h"
 
 #define AGENTID_STR "xmr-stak-amd/1.0"
 
@@ -60,10 +69,6 @@ typedef GenericDocument<UTF8<>, MemoryPoolAllocator<>, MemoryPoolAllocator<>> Me
 
 struct jpsock::opaque_private
 {
-	addrinfo *pSockAddr;
-	addrinfo *pAddrRoot;
-	SOCKET hSocket;
-
 	Value  oCallValue;
 
 	MemoryPoolAllocator<> callAllocator;
@@ -79,8 +84,6 @@ struct jpsock::opaque_private
 		jsonDoc(&recvAllocator, jpsock::iJsonMemSize, &parseAllocator),
 		oCallRsp(nullptr)
 	{
-		hSocket = INVALID_SOCKET;
-		pSockAddr = nullptr;
 	}
 };
 
@@ -90,7 +93,7 @@ struct jpsock::opq_json_val
 	opq_json_val(const Value* val) : val(val) {}
 };
 
-jpsock::jpsock(size_t id) : pool_id(id)
+jpsock::jpsock(size_t id, bool tls) : pool_id(id)
 {
 	sock_init();
 
@@ -99,6 +102,11 @@ jpsock::jpsock(size_t id) : pool_id(id)
 	bJsonParseMem = (uint8_t*)malloc(iJsonMemSize);
 
 	prv = new opaque_private(bJsonCallMem, bJsonRecvMem, bJsonParseMem);
+
+	if(tls)
+		sck = new tls_socket(this);
+	else
+		sck = new plain_socket(this);
 
 	oRecvThd = nullptr;
 	bRunning = false;
@@ -123,7 +131,7 @@ std::string&& jpsock::get_call_error()
 	return std::move(prv->oCallRsp.sCallErr);
 }
 
-inline bool jpsock::set_socket_error(const char* a)
+bool jpsock::set_socket_error(const char* a)
 {
 	if(!bHaveSocketError)
 	{
@@ -134,7 +142,7 @@ inline bool jpsock::set_socket_error(const char* a)
 	return false;
 }
 
-inline bool jpsock::set_socket_error(const char* a, const char* b)
+bool jpsock::set_socket_error(const char* a, const char* b)
 {
 	if(!bHaveSocketError)
 	{
@@ -145,6 +153,17 @@ inline bool jpsock::set_socket_error(const char* a, const char* b)
 		sSocketError.reserve(ln_a + ln_b + 2);
 		sSocketError.assign(a, ln_a);
 		sSocketError.append(b, ln_b);
+	}
+
+	return false;
+}
+
+bool jpsock::set_socket_error(const char* a, size_t len)
+{
+	if(!bHaveSocketError)
+	{
+		bHaveSocketError = true;
+		sSocketError.assign(a, len);
 	}
 
 	return false;
@@ -191,12 +210,8 @@ void jpsock::jpsock_thread()
 
 bool jpsock::jpsock_thd_main()
 {
-	int ret = ::connect(prv->hSocket, prv->pSockAddr->ai_addr, (int)prv->pSockAddr->ai_addrlen);
-	freeaddrinfo(prv->pAddrRoot);
-	prv->pAddrRoot = nullptr;
-
-	if (ret != 0)
-		return set_socket_error_strerr("CONNECT error: ");
+	if(!sck->connect())
+		return false;
 
 	executor::inst()->push_event(ex_event(EV_SOCK_READY, pool_id));
 
@@ -204,18 +219,16 @@ bool jpsock::jpsock_thd_main()
 	size_t datalen = 0;
 	while (true)
 	{
-		ret = recv(prv->hSocket, buf + datalen, sizeof(buf) - datalen, 0);
+		int ret = sck->recv(buf + datalen, sizeof(buf) - datalen);
 
-		if(ret == 0)
-			return set_socket_error("RECEIVE error: socket closed");
-		if(ret == SOCKET_ERROR || ret < 0)
-			return set_socket_error("RECEIVE error: ");
+		if(ret <= 0)
+			return false;
 
 		datalen += ret;
 
 		if (datalen >= sizeof(buf))
 		{
-			sock_close(prv->hSocket);
+			sck->close(false);
 			return set_socket_error("RECEIVE error: data overflow");
 		}
 
@@ -228,7 +241,7 @@ bool jpsock::jpsock_thd_main()
 
 			if (!process_line(lnstart, lnlen))
 			{
-				sock_close(prv->hSocket);
+				sck->close(false);
 				return false;
 			}
 
@@ -370,10 +383,12 @@ bool jpsock::process_pool_job(const opq_json_val* params)
 	size_t target_slen = target->GetStringLength();
 	if(target_slen <= 8)
 	{
-		uint32_t iTempInt;
+		uint32_t iTempInt = 0;
 		char sTempStr[] = "00000000"; // Little-endian CPU FTW
 		memcpy(sTempStr, target->GetString(), target_slen);
-		hex2bin(sTempStr, 8, (unsigned char*)&iTempInt);
+		if(!hex2bin(sTempStr, 8, (unsigned char*)&iTempInt) || iTempInt == 0)
+			return set_socket_error("PARSE error: Invalid target");
+
 		oPoolJob.iTarget = iTempInt;
 	}
 	else
@@ -390,100 +405,24 @@ bool jpsock::process_pool_job(const opq_json_val* params)
 
 bool jpsock::connect(const char* sAddr, std::string& sConnectError)
 {
-	if(prv_connect(sAddr))
+	bHaveSocketError = false;
+	sSocketError.clear();
+	iJobDiff = 0;
+
+	if(sck->set_hostname(sAddr))
+	{
+		bRunning = true;
+		oRecvThd = new std::thread(&jpsock::jpsock_thread, this);
 		return true;
+	}
 
 	sConnectError = std::move(sSocketError);
 	return false;
 }
 
-bool jpsock::prv_connect(const char* sAddr)
-{
-	char sAddrMb[256];
-	char *sTmp, *sPort;
-
-	bHaveSocketError = false;
-	sSocketError.clear();
-	iJobDiff = 0;
-
-	size_t ln = strlen(sAddr);
-	if (ln >= sizeof(sAddrMb))
-		return set_socket_error("CONNECT error: Pool address overflow.");
-
-	memcpy(sAddrMb, sAddr, ln);
-	sAddrMb[ln] = '\0';
-
-	if ((sTmp = strstr(sAddrMb, "//")) != nullptr)
-		memmove(sAddrMb, sTmp, strlen(sTmp) + 1);
-
-	if ((sPort = strchr(sAddrMb, ':')) == nullptr)
-		return set_socket_error("CONNECT error: Pool port number not specified, please use format <hostname>:<port>.");
-
-	sPort[0] = '\0';
-	sPort++;
-
-	addrinfo hints = { 0 };
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	prv->pAddrRoot = nullptr;
-	int err;
-	if ((err = getaddrinfo(sAddrMb, sPort, &hints, &prv->pAddrRoot)) != 0)
-		return set_socket_error_strerr("CONNECT error: GetAddrInfo: ", err);
-
-	addrinfo *ptr = prv->pAddrRoot;
-	addrinfo *ipv4 = nullptr, *ipv6 = nullptr;
-
-	while (ptr != nullptr)
-	{
-		if (ptr->ai_family == AF_INET)
-			ipv4 = ptr;
-		if (ptr->ai_family == AF_INET6)
-			ipv6 = ptr;
-		ptr = ptr->ai_next;
-	}
-
-	if (ipv4 == nullptr && ipv6 == nullptr)
-	{
-		freeaddrinfo(prv->pAddrRoot);
-		prv->pAddrRoot = nullptr;
-		return set_socket_error("CONNECT error: I found some DNS records but no IPv4 or IPv6 addresses.");
-	}
-	else if (ipv4 != nullptr && ipv6 == nullptr)
-		prv->pSockAddr = ipv4;
-	else if (ipv4 == nullptr && ipv6 != nullptr)
-		prv->pSockAddr = ipv6;
-	else if (ipv4 != nullptr && ipv6 != nullptr)
-	{
-		if(jconf::inst()->PreferIpv4())
-			prv->pSockAddr = ipv4;
-		else
-			prv->pSockAddr = ipv6;
-	}
-
-	prv->hSocket = socket(prv->pSockAddr->ai_family, prv->pSockAddr->ai_socktype, prv->pSockAddr->ai_protocol);
-
-	if (prv->hSocket == INVALID_SOCKET)
-	{
-		freeaddrinfo(prv->pAddrRoot);
-		prv->pAddrRoot = nullptr;
-		return set_socket_error_strerr("CONNECT error: Socket creation failed ");
-	}
-
-	bRunning = true;
-	oRecvThd = new std::thread(&jpsock::jpsock_thread, this);
-
-	return true;
-}
-
 void jpsock::disconnect()
 {
-	if(prv->hSocket != INVALID_SOCKET)
-	{
-		sock_close(prv->hSocket);
-		prv->hSocket = INVALID_SOCKET;
-	}
+	sck->close(false);
 
 	if(oRecvThd != nullptr)
 	{
@@ -491,6 +430,8 @@ void jpsock::disconnect()
 		delete oRecvThd;
 		oRecvThd = nullptr;
 	}
+
+	sck->close(true);
 }
 
 bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult)
@@ -505,18 +446,10 @@ bool jpsock::cmd_ret_wait(const char* sPacket, opq_json_val& poResult)
 	prv->oCallRsp = call_rsp(&prv->oCallValue);
 	mlock.unlock();
 
-	int pos = 0, slen = strlen(sPacket);
-	while (pos != slen)
+	if(!sck->send(sPacket))
 	{
-		int ret = send(prv->hSocket, sPacket + pos, slen - pos, 0);
-		if (ret == SOCKET_ERROR)
-		{
-			set_socket_error_strerr("SEND error: ");
-			disconnect(); //This will join the other thread;
-			return false;
-		}
-		else
-			pos += ret;
+		disconnect(); //This will join the other thread;
+		return false;
 	}
 
 	//Success is true if the server approves, result is true if there was no socket error

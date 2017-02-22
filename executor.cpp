@@ -11,6 +11,14 @@
   *
   * You should have received a copy of the GNU General Public License
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  *
+  * Additional permission under GNU GPL version 3 section 7
+  *
+  * If you modify this Program, or any covered work, by linking or combining
+  * it with OpenSSL (or a modified version of that library), containing parts
+  * covered by the terms of OpenSSL License and SSLeay License, the licensors
+  * of this Program grant you additional permission to convey the resulting work.
+  *
   */
 
 #include <thread>
@@ -103,8 +111,17 @@ void executor::ex_clock_thd()
 
 void executor::sched_reconnect()
 {
+	iReconnectAttempts++;
+	size_t iLimit = jconf::inst()->GetGiveUpLimit();
+	if(iLimit != 0 && iReconnectAttempts > iLimit)
+	{
+		printer::inst()->print_msg(L0, "Give up limit reached. Exitting.");
+		exit(0);
+	}
+
 	long long unsigned int rt = jconf::inst()->GetNetRetry();
-	printer::inst()->print_msg(L1, "Pool connection lost. Waiting %lld s before retry.", rt);
+	printer::inst()->print_msg(L1, "Pool connection lost. Waiting %lld s before retry (attempt %llu).",
+		rt, int_port(iReconnectAttempts));
 
 	auto work = minethd::miner_work();
 	minethd::switch_work(work);
@@ -185,7 +202,10 @@ void executor::on_sock_ready(size_t pool_id)
 		}
 	}
 	else
+	{
+		iReconnectAttempts = 0;
 		reset_stats();
+	}
 }
 
 void executor::on_sock_error(size_t pool_id, std::string&& sError)
@@ -333,7 +353,8 @@ void executor::on_switch_pool(size_t pool_id)
 		// If it fails, it fails, we carry on on the usr pool
 		// as we never receive further events
 		printer::inst()->print_msg(L1, "Connecting to dev pool...");
-		if(!pool->connect("donate.xmr-stak.net:3333", error))
+		const char* dev_pool_addr = jconf::inst()->GetTlsSetting() ? "donate.xmr-stak.net:6666" : "donate.xmr-stak.net:3333";
+		if(!pool->connect(dev_pool_addr, error))
 			printer::inst()->print_msg(L1, "Error connecting to dev pool. Staying with user pool.");
 	}
 	else
@@ -368,8 +389,8 @@ void executor::ex_main()
 	telem = new telemetry(pvThreads->size());
 
 	current_pool_id = usr_pool_id;
-	usr_pool = new jpsock(usr_pool_id);
-	dev_pool = new jpsock(dev_pool_id);
+	usr_pool = new jpsock(usr_pool_id, jconf::inst()->GetTlsSetting());
+	dev_pool = new jpsock(dev_pool_id, jconf::inst()->GetTlsSetting());
 
 	ex_event ev;
 	std::thread clock_thd(&executor::ex_clock_thd, this);

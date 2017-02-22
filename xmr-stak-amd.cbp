@@ -68,6 +68,8 @@
 			<Add library="pthread" />
 			<Add library="libmicrohttpd" />
 			<Add library="OpenCL" />
+			<Add library="crypto" />
+			<Add library="ssl" />
 		</Linker>
 		<Unit filename="amd_gpu/gpu.c">
 			<Option compilerVar="CC" />
@@ -154,6 +156,8 @@
 		<Unit filename="rapidjson/stream.h" />
 		<Unit filename="rapidjson/stringbuffer.h" />
 		<Unit filename="rapidjson/writer.h" />
+		<Unit filename="socket.cpp" />
+		<Unit filename="socket.h" />
 		<Unit filename="socks.h" />
 		<Unit filename="thdq.hpp" />
 		<Extensions>

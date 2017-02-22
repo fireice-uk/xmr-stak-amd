@@ -29,6 +29,10 @@ public:
 	inline void push_event(ex_event&& ev) { oEventQ.push(std::move(ev)); }
 	void push_timed_event(ex_event&& ev, size_t sec);
 
+	constexpr static size_t invalid_pool_id = 0;
+	constexpr static size_t dev_pool_id = 1;
+	constexpr static size_t usr_pool_id = 2;
+
 private:
 	struct timed_event
 	{
@@ -46,10 +50,6 @@ private:
 	// Dev donation time period in seconds. 100 minutes by default.
 	// We will divide up this period according to the config setting
 	constexpr static size_t iDevDonatePeriod = 100 * 60;
-
-	constexpr static size_t invalid_pool_id = 0;
-	constexpr static size_t dev_pool_id = 1;
-	constexpr static size_t usr_pool_id = 2;
 
 	std::list<timed_event> lTimedEvents;
 	std::mutex timed_event_mutex;
@@ -84,6 +84,8 @@ private:
 	std::string* pHttpString = nullptr;
 	std::promise<void> httpReady;
 	std::mutex httpMutex;
+
+	size_t iReconnectAttempts = 0;
 
 	struct sck_error_log
 	{
