@@ -13,8 +13,10 @@ Hash: SHA256
 
 Windows binary release checksums
 
-sha1sum xmr-stak-amd.exe opencl/*
-1fa7364af3b21dcc5f5bd54f6e862613422085d3  xmr-stak-amd.exe
+sha1sum
+57a1b9fa24d19f13a0cbcba9fb9cc0f12fa5fd49  xmr-stak-amd.exe
+d34a0ba0dd7b3b1f900a7e02772e197e974b4a73  libeay32.dll
+2ee9966a0fc163da58408d91be36b84fa287c10b  ssleay32.dll
 5acb656005a86cad90c6327985c3795d96a96c91  opencl/blake256.cl
 9e4e276afd9000945c25f6e5a5259977a29239f4  opencl/cryptonight.cl
 c9fb5e4bfb137ff60063978eecd10bffb7c4deb6  opencl/groestl256.cl
@@ -22,11 +24,10 @@ c9fb5e4bfb137ff60063978eecd10bffb7c4deb6  opencl/groestl256.cl
 429f559190d1163335847cc08df955234051504b  opencl/wolf-aes.cl
 e2862a6d7094aeab21844d3155803e5da99b4a46  opencl/wolf-skein.cl
 
-sha1sum xmr-stak-amd.exe opencl/* | sha1sum
-ac5eadbcc557d7192ea4ba887a50ba25b040b5fa  -
-
-sha3sum xmr-stak-amd.exe opencl/*
-a269811145448fbec2f763762da0c545ded76eccc88e2a55e415ab0b  xmr-stak-amd.exe
+sha3sum
+8a6fd1f761706a57a115b1b4196536802b15ba759b25ad5de75f0fac  xmr-stak-amd.exe
+133c065d9ef2c93396382e2ba5d8c3ca8c6a57c6beb0159cb9a4b6c5  ssleay32.dll
+05003137a87313c81d6c348c9b96411c95d48dc22c35f36c39129747  libeay32.dll
 a52b05548fd094e7bbb2367d7922bf19af3ed23ad5df53004fae0825  opencl/blake256.cl
 a49c9da554d7b01d091eea56e8b97b943ca33cd2a64a1f3f3169e202  opencl/cryptonight.cl
 13315b0a475212c92e10b7627b03a0813132437d4496b6596821b909  opencl/groestl256.cl
@@ -34,23 +35,20 @@ a49c9da554d7b01d091eea56e8b97b943ca33cd2a64a1f3f3169e202  opencl/cryptonight.cl
 806eb1d4e3d7b6630a422bb42ee00faa76d31143b7c1cbde65e46938  opencl/wolf-aes.cl
 052176a740a5a0bc088feea0aa7a72f0e9d96d6b6ffd00844676dd17  opencl/wolf-skein.cl
 
-sha3sum xmr-stak-amd.exe opencl/* | sha3sum
-50ff39acfdc5973014a26a2027a9fd20a9211cfee44bb61c16c235c6  -
-
 date
-Mon 23 Jan 19:32:15 GMT 2017
-
+Fri  3 Mar 23:38:11 GMT 2017
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJYhlpbAAoJEPsk95p+1Bw0QyUH/2tIagIw60i9Gy7mICfiTy6u
-AuWz+D5Zg/DEUOj6ZDBoZt+DpDvTPuwjbrCyn3Uf7jrEF+ZNI5K132Dt6Rh10v9K
-JSCxUB0q2mqUYkBY1MrIW0LM7ACg6RYQBuAq/2EVNt3FSKEFC1EbWa605IiXWXMu
-WraTY0lxefq+gJJGIlworKooSGuQFEK1d7huYOQvjjmsvZLLyr7ElVirxAmoob8g
-z5EFHwC1rUm12ajJbLfGfRV7vAUBct5iiVDMQMHx2QGq889BdZd0gcmzv6E0wB5L
-cFUnVBC1l8+bnfyzHyk1QXEogKAYK8t0bHBUaYcRV3q1KKI+X41HokX8KTQLVp8=
-=Rayc
+iQEcBAEBCAAGBQJYuf57AAoJEPsk95p+1Bw08hQIAJSCNUfd7tHx8FXH7O4Up4Q8
+ONXefhssOIHeoRsQFjKb6eXzG705YpvqeF24XPvmd/GKRKaisVq9WZ0PJDkTlXNU
+k4KIefsvOPiLGMFvQRSUjvXlgB2lcuidwW+zCevQVtk8Iq5MCZmjbqs9l6HkFp5E
+ceiAPFct7OgI49lAEX1HvA0FTf1JCzyqkAYzFDo54n3zeyiLNmfM/UdvLFTDyck7
+o2wrL/HXIGfuABeUX9WPW8SJCRdVhGscNbhbdIoP6jRnXK0/Ggnkk7DHjE+cWKVm
+EnJKo9xo5MURJOKVpTgkxBa/d5jjCIKynUjPfphIBhWTtbDbArdWPEbA3X/dsT4=
+=j9kt
 -----END PGP SIGNATURE-----
+
 ```
 
 #### Usage on Linux
