@@ -33,7 +33,7 @@
 #include "socks.h"
 #include "socket.h"
 
-#define AGENTID_STR "xmr-stak-amd/1.0"
+#define AGENTID_STR "xmr-stak-amd/1.3.1"
 
 using namespace rapidjson;
 
@@ -103,10 +103,14 @@ jpsock::jpsock(size_t id, bool tls) : pool_id(id)
 
 	prv = new opaque_private(bJsonCallMem, bJsonRecvMem, bJsonParseMem);
 
+#ifndef CONF_NO_TLS
 	if(tls)
 		sck = new tls_socket(this);
 	else
 		sck = new plain_socket(this);
+#else
+	sck = new plain_socket(this);
+#endif
 
 	oRecvThd = nullptr;
 	bRunning = false;
