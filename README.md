@@ -1,8 +1,15 @@
 ### XMR-Stak-AMD - Monero mining software
 
-XMR-Stak is a universal Stratum pool miner. This is the AMD version.
+XMR-Stak is a universal Stratum pool miner. This is the AMD GPU-mining version; there is also an [CPU version](https://github.com/fireice-uk/xmr-stak-cpu) and an [NVIDA GPU version](https://github.com/fireice-uk/xmr-stak-nvidia)
+
+#### HTML reports
+
+<img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/e948641897ba79e5a6ee78e8248cc07779d6eac7/xmr-stak-amd-hashrate.png" width="260"> <img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/e948641897ba79e5a6ee78e8248cc07779d6eac7/xmr-stak-amd-results.png" width="260"> <img src="https://gist.githubusercontent.com/fireice-uk/2da301131ac01695ff79539a27b81d68/raw/e948641897ba79e5a6ee78e8248cc07779d6eac7/xmr-stak-amd-connection.png" width="260">
+
+The hashrate shown above was generated on a non-modded, non-overclocked RX 480.
 
 #### Usage on Windows 
+
 1) Edit the config.txt file to enter your pool login and password. 
 2) Double click the exe file. 
 
@@ -14,7 +21,8 @@ Hash: SHA256
 Windows binary release checksums
 
 sha1sum
-57a1b9fa24d19f13a0cbcba9fb9cc0f12fa5fd49  xmr-stak-amd.exe
+d45ca7cbab2ca9fe994a6c8749be08cc9a13ba69  xmr-stak-amd.exe
+4892d4fcb6ef6f6132a90bbb628549eb4b5dc5fd  xmr-stak-amd-notls.exe
 d34a0ba0dd7b3b1f900a7e02772e197e974b4a73  libeay32.dll
 2ee9966a0fc163da58408d91be36b84fa287c10b  ssleay32.dll
 5acb656005a86cad90c6327985c3795d96a96c91  opencl/blake256.cl
@@ -25,7 +33,8 @@ c9fb5e4bfb137ff60063978eecd10bffb7c4deb6  opencl/groestl256.cl
 e2862a6d7094aeab21844d3155803e5da99b4a46  opencl/wolf-skein.cl
 
 sha3sum
-8a6fd1f761706a57a115b1b4196536802b15ba759b25ad5de75f0fac  xmr-stak-amd.exe
+b5749e46c07793c39a651f41ca8a617f4c3ab2072c50b208734afc6f  xmr-stak-amd.exe
+fb29fc2059af15d0bbcd9cb73382d226c7023c22219a6e7edaa07ffc  xmr-stak-amd-notls.exe
 133c065d9ef2c93396382e2ba5d8c3ca8c6a57c6beb0159cb9a4b6c5  ssleay32.dll
 05003137a87313c81d6c348c9b96411c95d48dc22c35f36c39129747  libeay32.dll
 a52b05548fd094e7bbb2367d7922bf19af3ed23ad5df53004fae0825  opencl/blake256.cl
@@ -36,86 +45,37 @@ a49c9da554d7b01d091eea56e8b97b943ca33cd2a64a1f3f3169e202  opencl/cryptonight.cl
 052176a740a5a0bc088feea0aa7a72f0e9d96d6b6ffd00844676dd17  opencl/wolf-skein.cl
 
 date
-Fri  3 Mar 23:38:11 GMT 2017
+Wed 15 Mar 16:43:43 GMT 2017
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJYuf57AAoJEPsk95p+1Bw08hQIAJSCNUfd7tHx8FXH7O4Up4Q8
-ONXefhssOIHeoRsQFjKb6eXzG705YpvqeF24XPvmd/GKRKaisVq9WZ0PJDkTlXNU
-k4KIefsvOPiLGMFvQRSUjvXlgB2lcuidwW+zCevQVtk8Iq5MCZmjbqs9l6HkFp5E
-ceiAPFct7OgI49lAEX1HvA0FTf1JCzyqkAYzFDo54n3zeyiLNmfM/UdvLFTDyck7
-o2wrL/HXIGfuABeUX9WPW8SJCRdVhGscNbhbdIoP6jRnXK0/Ggnkk7DHjE+cWKVm
-EnJKo9xo5MURJOKVpTgkxBa/d5jjCIKynUjPfphIBhWTtbDbArdWPEbA3X/dsT4=
-=j9kt
+iQEcBAEBCAAGBQJYyW9uAAoJEPsk95p+1Bw0olMIAKCd6SbJqj6mrX4u8GtYAF5X
+q0OJc/B27P9BRmP5bjPCJg48iopwe2MYHJN+We6ygw6+y/gn9VNdPnznoxgCaRRp
+MEZzg4UYcz3zBlDe5Vfs56PbChky5x9sg02rPzVAX84SakNhRkOcS3638GDL5c20
+4gldasMOHyqnM+mjlM8RpOev3SR18hXJAjGam3XxGTFqaI70WdjlwSpCwoQ9Cm6I
+BIBsrTn7CK9gYn6RGj71ZDc7azW8GMPe+Aq7X3NP9VmkjmtrkjOrlwECQC20KQ6F
+kSRwQQKvgsqFcxoFbmvx59X61qg4amfgEe4VLb8+lh6ZBs5TVRuzJmLZnn2v3dM=
+=xYQ1
 -----END PGP SIGNATURE-----
-
 ```
 
-#### Usage on Linux
+#### Usage on Linux (Debian-based distros)
+
+**AMD Driver**
+http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Install.aspx
+
+
 ```
-    sudo apt-get install ocl-icd-opencl-dev
-    sudo apt-get install libmicrohttpd-dev
+    sudo apt-get install ocl-icd-opencl-dev libmicrohttpd-dev libssl-dev cmake build-essential
     cmake .
     make
 ```
 
 GCC version 5.1 or higher is required for full C++11 support. CMake release compile scripts, as well as CodeBlocks build environment for debug builds is included.
 
-To do a static build for a system without gcc 5.1+
-```
-    cmake -DCMAKE_BUILD_TYPE=STATIC
-    make
-```
-Note - cmake caches variables, so if you want to do a dynamic build later you need to specify '-DCMAKE_BUILD_TYPE=RELEASE'
-
 #### Mining performance 
 
 Mining core is a direct port (except for sercurity fixes) of wolf9466's AMD mining code. Performance is likely to be identical.
-
-#### Example reports
-```
-HASHRATE REPORT
-| ID | 2.5s |  60s |  15m | ID | 2.5s |  60s |  15m |
-|  0 | 31.7 | 30.7 | 30.5 |  1 | 30.6 | 30.6 | 30.6 |
-|  2 | 30.3 | 30.6 | 30.6 |  3 | 30.6 | 30.6 | 30.6 |
-|  4 | 35.3 | 35.5 | 35.6 |  5 | 35.7 | 35.7 | 35.7 |
-|  6 | 35.4 | 35.6 | 35.6 |  7 | 35.7 | 35.7 | 35.7 |
-|  8 | 31.7 | 30.7 | 30.5 |  9 | 30.6 | 30.6 | 30.6 |
-| 10 | 30.4 | 30.6 | 30.6 | 11 | 30.6 | 30.6 | 30.6 |
------------------------------------------------------
-Totals:   388.7 388.7 388.7 H/s
-Highest:  388.7 H/s
-```
-
-```
-RESULT REPORT
-Difficulty       : 8192
-Good results     : 5825 / 5826 (100.0 %)
-Avg result time  : 10.3 sec
-Pool-side hashes : 22683648
-
-Top 10 best results found:
-|  0 |         15407238 |  1 |         12699745 |
-|  2 |         12194202 |  3 |          6999845 |
-|  4 |          5533935 |  5 |          5315338 |
-|  6 |          4700351 |  7 |          4500227 |
-|  8 |          4023567 |  9 |          4021473 |
-
-Error details:
-| Count |                       Error text |           Last seen |
-|     1 | [NETWORK ERROR]                  | 2017-01-02 21:29:15 |
-```
-
-```
-CONNECTION REPORT
-Connected since : 2017-01-02 21:29:40
-Pool ping time  : 288 ms
-
-Network error log:
-| Date                |                                                       Error text |
-| 2017-01-02 21:29:15 | CALL error: Timeout while waiting for a reply                    |
-| 2017-01-02 21:29:30 | CONNECT error: GetAddrInfo: Name or service not known            |
-```
 
 #### Default dev donation
 By default the miner will donate 1% of the hashpower (1 minute in 100 minutes) to my pool. If you want to change that, edit **donate-level.h** before you build the binaries.
