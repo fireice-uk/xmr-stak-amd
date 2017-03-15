@@ -717,7 +717,7 @@ void executor::http_hashrate_report(std::string& out)
 	{
 		double fHps[3];
 
-		fHps[0] = telem->calc_telemetry_data(2500, i);
+		fHps[0] = telem->calc_telemetry_data(10000, i);
 		fHps[1] = telem->calc_telemetry_data(60000, i);
 		fHps[2] = telem->calc_telemetry_data(900000, i);
 
