@@ -62,6 +62,7 @@ kSRwQQKvgsqFcxoFbmvx59X61qg4amfgEe4VLb8+lh6ZBs5TVRuzJmLZnn2v3dM=
 #### Usage on Linux (Debian-based distros)
 
 **AMD Driver**
+
 http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Install.aspx
 
 
