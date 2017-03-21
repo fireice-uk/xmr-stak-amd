@@ -173,6 +173,7 @@ const char* err_to_str(cl_int ret)
 }
 
 void printer_print_msg(const char* fmt, ...);
+void printer_print_str(const char* str);
 
 char* LoadTextFile(const char* filename)
 {
@@ -311,6 +312,8 @@ size_t InitOpenCLGpu(cl_context opencl_ctx, GpuContext* ctx, char* source_code)
 		}
 
 		char* BuildLog = (char*)malloc(len + 1);
+		BuildLog[0] = '\0';
+
 		if((ret = clGetProgramBuildInfo(ctx->Program, ctx->DeviceID, CL_PROGRAM_BUILD_LOG, len, BuildLog, NULL)) != CL_SUCCESS)
 		{
 			free(BuildLog);
@@ -318,7 +321,9 @@ size_t InitOpenCLGpu(cl_context opencl_ctx, GpuContext* ctx, char* source_code)
 			return ERR_OCL_API;
 		}
 
-		printer_print_msg("Build Log:\n%s", BuildLog);
+		printer_print_str("Build log:\n");
+		printer_print_str(BuildLog);
+
 		free(BuildLog);
 		return ERR_OCL_API;
 	}
