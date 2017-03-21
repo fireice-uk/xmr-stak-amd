@@ -240,5 +240,5 @@ extern "C" void printer_print_msg(const char* fmt, ...)
 
 extern "C" void printer_print_str(const char* str)
 {
-	printer::inst()->print_str(buf);
+	printer::inst()->print_str(str);
 }
