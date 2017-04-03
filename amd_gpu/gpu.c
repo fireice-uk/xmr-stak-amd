@@ -675,7 +675,7 @@ size_t XMRRunJob(GpuContext* ctx, cl_uint* HashOutput)
 				return(ERR_OCL_API);
 			}
 
-			BranchNonces[i] += BranchNonces[i] + (w_size - (BranchNonces[i] & (w_size - 1)));
+			BranchNonces[i] = ((size_t)ceil( (double)BranchNonces[i] / (double)w_size) ) * w_size;
 			if((ret = clEnqueueNDRangeKernel(ctx->CommandQueues, ctx->Kernels[i + 3], 1, &ctx->Nonce, BranchNonces + i, &w_size, 0, NULL, NULL)) != CL_SUCCESS)
 			{
 				printer_print_msg("Error %s when calling clEnqueueNDRangeKernel for kernel %d.", err_to_str(ret), i + 3);
