@@ -13,7 +13,36 @@
   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
+#ifdef cl_amd_media_ops
+#pragma OPENCL EXTENSION cl_amd_media_ops : enable
+#else
+#pragma "Emulating amd_bitalign"
+// taken from https://github.com/Bdot42/mfakto/blob/master/src/common.cl
+// we should define something for bitalign() ...
+//     Build-in Function
+//      uintn  amd_bitalign (uintn src0, uintn src1, uintn src2)
+//    Description
+//      dst.s0 =  (uint) (((((long)src0.s0) << 32) | (long)src1.s0) >> (src2.s0 & 31))
+//      similar operation applied to other components of the vectors.
+#define amd_bitalign(src0, src1, src2) (src0  << (32-src2)) | (src1 >> src2)
+#endif
+
+#ifdef cl_amd_media_ops2
 #pragma OPENCL EXTENSION cl_amd_media_ops2 : enable
+#else
+#pragma "Emulating amd_bfe"
+int amd_bfe(uint2 src0, uint2 src1, uint2 src2) 
+{
+	int offset = src1.s0 & 31; 
+	int width = src2.s0 & 31; 
+	if ( width == 0 ) 
+		return 0;
+	if ( (offset + width) < 32 ) 
+		return (src0.s0 << (32 - offset - width)) >> (32 - width);
+
+	return src0.s0 >> offset;
+}
+#endif
 
 #include "opencl/wolf-aes.cl"
 #include "opencl/wolf-skein.cl"
@@ -324,8 +353,6 @@ void CNKeccak(ulong *output, ulong *input)
 }
 
 static const __constant uchar rcon[8] = { 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40 };
-
-#pragma OPENCL EXTENSION cl_amd_media_ops2 : enable
 
 #define BYTE(x, y)	(amd_bfe((x), (y) << 3U, 8U))
 
