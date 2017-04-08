@@ -16,7 +16,6 @@
 #ifdef cl_amd_media_ops
 #pragma OPENCL EXTENSION cl_amd_media_ops : enable
 #else
-#pragma "Emulating amd_bitalign"
 // taken from https://github.com/Bdot42/mfakto/blob/master/src/common.cl
 // we should define something for bitalign() ...
 //     Build-in Function
@@ -30,15 +29,19 @@
 #ifdef cl_amd_media_ops2
 #pragma OPENCL EXTENSION cl_amd_media_ops2 : enable
 #else
-#pragma "Emulating amd_bfe"
-int amd_bfe(uint2 src0, uint2 src1, uint2 src2) 
+inline int amd_bfe(const uint2 src0, const uint2 src1, const uint2 src2)
 {
 	int offset = src1.s0 & 31; 
-	int width = src2.s0 & 31; 
-	if ( width == 0 ) 
-		return 0;
-	if ( (offset + width) < 32 ) 
-		return (src0.s0 << (32 - offset - width)) >> (32 - width);
+	int width = src2.s0 & 31;
+        /* remove check for edge case, this function is always called with
+         * `width==8`
+         * @code
+         *   if ( width == 0 )
+         *      return 0;
+         * @endcode
+         */
+        if ( (offset + width) < 32 )
+	        return (src0.s0 << (32 - offset - width)) >> (32 - width);
 
 	return src0.s0 >> offset;
 }
