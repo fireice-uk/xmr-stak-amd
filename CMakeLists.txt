@@ -36,6 +36,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${BUILD_TYPE}")
 
+# option to add static libgcc and libstdc++
+option(CMAKE_LINK_STATIC "link as much as possible libraries static" OFF)
+
 ###############################################################################
 # Find OpenCL
 ###############################################################################
@@ -83,6 +86,15 @@ include_directories(.)
 
 # activate sse2 and aes-ni
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -maes")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2 -maes")
+
+# activate static libgcc and libstdc++ linking
+if(CMAKE_LINK_STATIC)
+    set(BUILD_SHARED_LIBRARIES OFF)
+    set(DL_LIB ${CMAKE_DL_LIBS})
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(LIBS "-static-libgcc -static-libstdc++ ${LIBS}")
+endif()
 
 file(GLOB SRCFILES_CPP "*.cpp" "crypto/*.cpp")
 file(GLOB SRCFILES_C "crypto/*.c" "amd_gpu/*.c")
@@ -98,7 +110,7 @@ add_executable(xmr-stak-amd
 )
 
 set(EXECUTABLE_OUTPUT_PATH "bin")
-target_link_libraries(xmr-stak-amd xmr-stak-c ${LIBS})
+target_link_libraries(xmr-stak-amd ${LIBS} xmr-stak-c)
 
 ################################################################################
 # Install
@@ -121,4 +133,3 @@ install(CODE " \
             DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)\n        \
     endif()"
 )
-
