@@ -26,6 +26,7 @@
 #include "jconf.h"
 #include "console.h"
 #include "donate-level.h"
+#include "version.h"
 
 #ifndef CONF_NO_HTTPD
 #	include "httpd.h"
@@ -124,7 +125,7 @@ int main(int argc, char *argv[])
 #endif
 
 	printer::inst()->print_str("-------------------------------------------------------------------\n");
-	printer::inst()->print_str("XMR-Stak-AMD mining software, AMD Version.\n");
+	printer::inst()->print_str( XMR_STAK_NAME" " XMR_STAK_VERSION " mining software, AMD Version.\n");
 	printer::inst()->print_str("AMD mining code was written by wolf9466.\n");
 	printer::inst()->print_str("Brought to you by fireice_uk under GPLv3.\n\n");
 	char buffer[64];
