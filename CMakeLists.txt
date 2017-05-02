@@ -59,22 +59,32 @@ set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 # Find microhttpd
 ################################################################################
 
-find_library(MHTD NAMES microhttpd)
-if("${MHTD}" STREQUAL "MHTD-NOTFOUND")
-    message(STATUS "microhttpd NOT found: disable http server")
-    add_definitions("-DCONF_NO_HTTPD")
+option(MICROHTTPD_ENABLE "Enable or disable the requirement of microhttp (http deamon)" ON)
+if(MICROHTTPD_ENABLE)
+    find_library(MHTD NAMES microhttpd)
+    if("${MHTD}" STREQUAL "MHTD-NOTFOUND")
+        message(FATAL_ERROR "microhttpd NOT found: use `-DMICROHTTPD_ENABLE=OFF` to build without http deamon support")
+    else()
+        set(LIBS ${LIBS} ${MHTD})
+    endif()
 else()
-    set(LIBS ${LIBS} ${MHTD})
+    add_definitions("-DCONF_NO_HTTPD")
 endif()
 
 ###############################################################################
 # Find OpenSSL
 ###############################################################################
 
-find_package(OpenSSL)
-include_directories(${OPENSSL_INCLUDE_DIR})
-set(LIBS ${LIBS} ${OPENSSL_LIBRARIES})
-if(NOT OPENSSL_FOUND)
+option(OpenSSL_ENABLE "Enable or disable the requirement of OpenSSL" ON)
+if(OpenSSL_ENABLE)
+    find_package(OpenSSL)
+    if(OPENSSL_FOUND)
+        include_directories(${OPENSSL_INCLUDE_DIR})
+        set(LIBS ${LIBS} ${OPENSSL_LIBRARIES})
+    else()
+        message(FATAL_ERROR "OpenSSL NOT found: use `-DOpenSSL_ENABLE=OFF` to build without SSL support")
+    endif()
+else()
     add_definitions("-DCONF_NO_TLS")
 endif()
 
