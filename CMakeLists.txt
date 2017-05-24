@@ -109,18 +109,18 @@ endif()
 file(GLOB SRCFILES_CPP "*.cpp" "crypto/*.cpp")
 file(GLOB SRCFILES_C "crypto/*.c" "amd_gpu/*.c")
 
-add_library(xmr-stak-c
+add_library(xmr-stak-amd-c
     STATIC
     ${SRCFILES_C}
 )
-set_property(TARGET xmr-stak-c PROPERTY C_STANDARD 99)
+set_property(TARGET xmr-stak-amd-c PROPERTY C_STANDARD 99)
+target_link_libraries(xmr-stak-amd-c PUBLIC ${OpenCL_LIBRARY})
 
 add_executable(xmr-stak-amd
     ${SRCFILES_CPP}
 )
-
 set(EXECUTABLE_OUTPUT_PATH "bin")
-target_link_libraries(xmr-stak-amd ${LIBS} xmr-stak-c)
+target_link_libraries(xmr-stak-amd ${LIBS} xmr-stak-amd-c)
 
 ################################################################################
 # Install
