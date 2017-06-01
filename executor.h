@@ -21,8 +21,7 @@ public:
 		return oInst;
 	};
 
-	void ex_start() { my_thd = new std::thread(&executor::ex_main, this); }
-	void ex_main();
+	void ex_start(bool daemon) { daemon ? ex_main() : std::thread(&executor::ex_main, this).detach(); }
 
 	void get_http_report(ex_event_name ev_id, std::string& data);
 
@@ -57,7 +56,6 @@ private:
 
 	telemetry* telem;
 	std::vector<minethd*>* pvThreads;
-	std::thread* my_thd;
 
 	size_t current_pool_id;
 
@@ -70,6 +68,8 @@ private:
 
 	executor();
 	static executor* oInst;
+
+	void ex_main();
 
 	void ex_clock_thd();
 	void pool_connect(jpsock* pool);

@@ -346,7 +346,7 @@ void AESExpandKey256(uint *keybuf)
 	}
 }
 
-#define IDX(x)	((x) * (get_global_size(0)))
+#define IDX(x)	(x)
 
 __attribute__((reqd_work_group_size(WORKSIZE, 8, 1)))
 __kernel void cn0(__global ulong *input, __global uint4 *Scratchpad, __global ulong *states)
@@ -357,7 +357,7 @@ __kernel void cn0(__global ulong *input, __global uint4 *Scratchpad, __global ul
 	uint4 text;
 	
 	states += (25 * (get_global_id(0) - get_global_offset(0)));
-	Scratchpad += ((get_global_id(0) - get_global_offset(0)));
+	Scratchpad += ((get_global_id(0) - get_global_offset(0))) * (0x80000 >> 2);
 	
 	for(int i = get_local_id(0); i < 256; i += WORKSIZE)
 	{
@@ -367,6 +367,7 @@ __kernel void cn0(__global ulong *input, __global uint4 *Scratchpad, __global ul
 		AES2[i] = rotate(tmp, 16U);
 		AES3[i] = rotate(tmp, 24U);
 	}
+	barrier(CLK_LOCAL_MEM_FENCE);
 	
 	((ulong8 *)State)[0] = vload8(0, input);
 	State[8] = input[8];
@@ -418,7 +419,7 @@ __kernel void cn1(__global uint4 *Scratchpad, __global ulong *states)
 	ulong a[2], b[2];
 	__local uint AES0[256], AES1[256], AES2[256], AES3[256];
 	
-	Scratchpad += ((get_global_id(0) - get_global_offset(0)));
+	Scratchpad += ((get_global_id(0) - get_global_offset(0))) * (0x80000 >> 2);
 	states += (25 * (get_global_id(0) - get_global_offset(0)));
 	
 	for(int i = get_local_id(0); i < 256; i += WORKSIZE)
@@ -429,6 +430,7 @@ __kernel void cn1(__global uint4 *Scratchpad, __global ulong *states)
 		AES2[i] = rotate(tmp, 16U);
 		AES3[i] = rotate(tmp, 24U);
 	}
+	barrier(CLK_LOCAL_MEM_FENCE);
 	
 	a[0] = states[0] ^ states[4];
 	b[0] = states[2] ^ states[6];
@@ -474,7 +476,7 @@ __kernel void cn2(__global uint4 *Scratchpad, __global ulong *states, __global u
 	ulong State[25];
 	uint4 text;
 	
-	Scratchpad += ((get_global_id(0) - get_global_offset(0)));
+	Scratchpad += ((get_global_id(0) - get_global_offset(0))) * (0x80000 >> 2);
 	states += (25 * (get_global_id(0) - get_global_offset(0)));
 	
 	for(int i = get_local_id(0); i < 256; i += WORKSIZE)
@@ -485,6 +487,7 @@ __kernel void cn2(__global uint4 *Scratchpad, __global ulong *states, __global u
 		AES2[i] = rotate(tmp, 16U);
 		AES3[i] = rotate(tmp, 24U);
 	}
+	barrier(CLK_LOCAL_MEM_FENCE);
 	
 	#if defined(__Tahiti__) || defined(__Pitcairn__)
 	

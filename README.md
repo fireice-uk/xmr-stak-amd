@@ -21,41 +21,41 @@ Hash: SHA256
 Windows binary release checksums
 
 sha1sum
-d45ca7cbab2ca9fe994a6c8749be08cc9a13ba69  xmr-stak-amd.exe
-4892d4fcb6ef6f6132a90bbb628549eb4b5dc5fd  xmr-stak-amd-notls.exe
+774f20271610741ec20c5f1c7e9d20467e3f3834  xmr-stak-amd.exe
+cc7c22b0800a4c615d05dd53f8c6faa65d20ba24  xmr-stak-amd-notls.exe
 d34a0ba0dd7b3b1f900a7e02772e197e974b4a73  libeay32.dll
 2ee9966a0fc163da58408d91be36b84fa287c10b  ssleay32.dll
 5acb656005a86cad90c6327985c3795d96a96c91  opencl/blake256.cl
-9e4e276afd9000945c25f6e5a5259977a29239f4  opencl/cryptonight.cl
+603322cbe721964d76de68660f63f97f1bcd4057  opencl/cryptonight.cl
 c9fb5e4bfb137ff60063978eecd10bffb7c4deb6  opencl/groestl256.cl
 361dfce776ee4a89b100d139a879af5d0f0d65e4  opencl/jh.cl
 429f559190d1163335847cc08df955234051504b  opencl/wolf-aes.cl
 e2862a6d7094aeab21844d3155803e5da99b4a46  opencl/wolf-skein.cl
 
 sha3sum
-b5749e46c07793c39a651f41ca8a617f4c3ab2072c50b208734afc6f  xmr-stak-amd.exe
-fb29fc2059af15d0bbcd9cb73382d226c7023c22219a6e7edaa07ffc  xmr-stak-amd-notls.exe
+487b2f05cfd71a9cb4acd0eba2734162d605ada539900f83f43d7a6b  xmr-stak-amd.exe
+d79dec89112811ea61a4486a91e1c22e48f3293b1d6e28e951d346af  xmr-stak-amd-notls.exe
 133c065d9ef2c93396382e2ba5d8c3ca8c6a57c6beb0159cb9a4b6c5  ssleay32.dll
 05003137a87313c81d6c348c9b96411c95d48dc22c35f36c39129747  libeay32.dll
 a52b05548fd094e7bbb2367d7922bf19af3ed23ad5df53004fae0825  opencl/blake256.cl
-a49c9da554d7b01d091eea56e8b97b943ca33cd2a64a1f3f3169e202  opencl/cryptonight.cl
+8b3d0f4a39fca8a6d21afe9121796343379605017a167fa148c374d3  opencl/cryptonight.cl
 13315b0a475212c92e10b7627b03a0813132437d4496b6596821b909  opencl/groestl256.cl
 89548b917dbe216f5809624ebe350859c1d800048909322049f93d23  opencl/jh.cl
 806eb1d4e3d7b6630a422bb42ee00faa76d31143b7c1cbde65e46938  opencl/wolf-aes.cl
 052176a740a5a0bc088feea0aa7a72f0e9d96d6b6ffd00844676dd17  opencl/wolf-skein.cl
 
 date
-Wed 15 Mar 16:43:43 GMT 2017
+Sun 28 May 10:18:31 BST 2017
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQEcBAEBCAAGBQJYyW9uAAoJEPsk95p+1Bw0olMIAKCd6SbJqj6mrX4u8GtYAF5X
-q0OJc/B27P9BRmP5bjPCJg48iopwe2MYHJN+We6ygw6+y/gn9VNdPnznoxgCaRRp
-MEZzg4UYcz3zBlDe5Vfs56PbChky5x9sg02rPzVAX84SakNhRkOcS3638GDL5c20
-4gldasMOHyqnM+mjlM8RpOev3SR18hXJAjGam3XxGTFqaI70WdjlwSpCwoQ9Cm6I
-BIBsrTn7CK9gYn6RGj71ZDc7azW8GMPe+Aq7X3NP9VmkjmtrkjOrlwECQC20KQ6F
-kSRwQQKvgsqFcxoFbmvx59X61qg4amfgEe4VLb8+lh6ZBs5TVRuzJmLZnn2v3dM=
-=xYQ1
+iQEcBAEBCAAGBQJZKpX9AAoJEPsk95p+1Bw0BAYIALFYF5Ud+kKxb9uNyQaD3h5n
+yv1MrdI81lpTRWpjK2naAN+pymAx7MwMi4KU0hTy5FMOuX+Ssb8kJsCAXKUYogff
+W4+M4Bk6JaCcrJVhhgK2ucuDm8H1uQ+Ps/nPa+a7foT6d+7kGtj7bXPeOWyr+oUB
+IbP/LnG40jOJnzG1u6/1e3YLXewWOEdLOYi8fN7VAl5b5uwmWw4DcWkQT1aiaFCV
+awJCjDUNWtZ3+wgzE9ZU2cPmNXDKTuVHnR9F6+S8CDJs+yPe5phQuTrIObB5dhpD
+trZnODWL/fZehf1koNCxKxpBDhGaDX7nx7j0NjN/btYhNwm9dckd9Xz3B3/Cod8=
+=0alz
 -----END PGP SIGNATURE-----
 ```
 

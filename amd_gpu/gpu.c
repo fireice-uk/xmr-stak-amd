@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -163,10 +164,12 @@ const char* err_to_str(cl_int ret)
 		return "CL_INVALID_LINKER_OPTIONS";
 	case CL_INVALID_DEVICE_PARTITION_COUNT:
 		return "CL_INVALID_DEVICE_PARTITION_COUNT";
+#ifdef CL_VERSION_2_0
 	case CL_INVALID_PIPE_SIZE:
 		return "CL_INVALID_PIPE_SIZE";
 	case CL_INVALID_DEVICE_QUEUE:
 		return "CL_INVALID_DEVICE_QUEUE";
+#endif
 	default:
 		return "UNKNOWN_ERROR";
 	}
@@ -675,7 +678,7 @@ size_t XMRRunJob(GpuContext* ctx, cl_uint* HashOutput)
 				return(ERR_OCL_API);
 			}
 
-			BranchNonces[i] += BranchNonces[i] + (w_size - (BranchNonces[i] & (w_size - 1)));
+			BranchNonces[i] = ((size_t)ceil( (double)BranchNonces[i] / (double)w_size) ) * w_size;
 			if((ret = clEnqueueNDRangeKernel(ctx->CommandQueues, ctx->Kernels[i + 3], 1, &ctx->Nonce, BranchNonces + i, &w_size, 0, NULL, NULL)) != CL_SUCCESS)
 			{
 				printer_print_msg("Error %s when calling clEnqueueNDRangeKernel for kernel %d.", err_to_str(ret), i + 3);
