@@ -79,7 +79,7 @@ GCC version 5.1 or higher is required for full C++11 support. CMake release comp
 Mining core is a direct port (except for sercurity fixes) of wolf9466's AMD mining code. Performance is likely to be identical.
 
 #### Default dev donation
-By default the miner will donate 1% of the hashpower (1 minute in 100 minutes) to my pool. If you want to change that, edit **donate-level.h** before you build the binaries.
+By default the miner will donate 2% of the hashpower (2 minute in 100 minutes) to my pool. If you want to change that, edit **donate-level.h** before you build the binaries.
 
 If you want to donate directly to support further development, here is my wallet
 ```
